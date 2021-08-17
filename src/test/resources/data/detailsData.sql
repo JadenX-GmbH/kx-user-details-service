@@ -1,0 +1,23 @@
+INSERT INTO details (id,
+                     name,
+                     surname,
+                     email,
+                     phone,
+                     nationality,
+                     education,
+                     degree,
+                     user_id,
+                     date_created,
+                     last_updated)
+VALUES (1600,
+        'Cras sed interdum...',
+        'Aenean pulvinar...',
+        'Donec ac nibh...',
+        'Ut pellentesque sapien...',
+        'Donec ac nibh...',
+        'Donec ac nibh...',
+        'Donec ac nibh...',
+        1000,
+        '2021-09-03 04:30:00',
+        '2021-09-03 04:30:00');
+
