@@ -1,5 +1,7 @@
 package com.jadenx.kxuserdetailsservice.rest;
 
+import com.jadenx.kxuserdetailsservice.model.AddressDTO;
+import com.jadenx.kxuserdetailsservice.model.DetailsDTO;
 import com.jadenx.kxuserdetailsservice.model.ProfileDTO;
 import com.jadenx.kxuserdetailsservice.model.UserDTO;
 import com.jadenx.kxuserdetailsservice.service.UserService;
@@ -26,7 +28,7 @@ public class UserController {
 
     @GetMapping("/profile")
     public ResponseEntity<ProfileDTO> getUsersProfile(final Principal user) {
-        return ResponseEntity.ok(userService.getProfileById(UUID.fromString(user.getName())));
+        return ResponseEntity.ok(userService.getProfileByUid(UUID.fromString(user.getName())));
     }
 
     @GetMapping
@@ -34,9 +36,9 @@ public class UserController {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUser(@PathVariable final Long id) {
-        return ResponseEntity.ok(userService.get(id));
+    @GetMapping("/{uid}")
+    public ResponseEntity<ProfileDTO> getUser(@PathVariable final UUID uid) {
+        return ResponseEntity.ok(userService.get(uid));
     }
 
     @PostMapping
@@ -55,6 +57,47 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable final Long id) {
         userService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{uid}/profile")
+    public ResponseEntity<ProfileDTO> getUsersProfileFromUid(@PathVariable final UUID uid) {
+        return ResponseEntity.ok(userService.getProfileByUid(uid));
+    }
+
+    @GetMapping("/{uid}/detail")
+    public ResponseEntity<DetailsDTO> getDetailsFromUser(@PathVariable final UUID uid) {
+        return ResponseEntity.ok(userService.getDetailsFromUser(uid));
+    }
+
+    @PutMapping("/{uid}/detail")
+    public ResponseEntity<Void> updateDetails(@PathVariable final UUID uid,
+                                              @RequestBody @Valid final DetailsDTO detailsDTO) {
+        userService.updateDetail(uid, detailsDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{uid}/addresses")
+    public ResponseEntity<List<AddressDTO>> getAddressFromUser(@PathVariable final UUID uid) {
+        return  ResponseEntity.ok(userService.getAddressFromUser(uid));
+    }
+
+    @PutMapping("/{uid}/addresses")
+    public ResponseEntity<Void> updateAddress(@PathVariable final UUID uid,
+                                              @RequestBody @Valid final List<AddressDTO> addressDTO) {
+        userService.updateAddress(uid, addressDTO);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{uid}/addresses")
+    public ResponseEntity<Void> deleteAddress(@PathVariable final UUID uid) {
+        userService.deleteAddress(uid);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{uid}/addresses")
+    public ResponseEntity<List<Long>> createAddresses(@PathVariable final UUID uid,
+                                                      @RequestBody @Valid final List<AddressDTO> addressDTOList) {
+        return new ResponseEntity<>(userService.createAddress(uid, addressDTOList), HttpStatus.CREATED);
     }
 
 }

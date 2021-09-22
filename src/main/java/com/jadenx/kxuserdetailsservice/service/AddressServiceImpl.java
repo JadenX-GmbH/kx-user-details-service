@@ -69,7 +69,7 @@ public class AddressServiceImpl implements AddressService {
         addressDTO.setPostalCode(address.getPostalCode());
         addressDTO.setCity(address.getCity());
         addressDTO.setCountry(address.getCountry());
-        addressDTO.setUser(address.getUser() == null ? null : address.getUser().getId());
+        addressDTO.setUser(address.getUser() == null ? null : address.getUser().getUid());
         return addressDTO;
     }
 
@@ -84,7 +84,7 @@ public class AddressServiceImpl implements AddressService {
         if (addressDTO.getUser() != null
             && (address.getUser() == null
             || !address.getUser().getId().equals(addressDTO.getUser()))) {
-            final User user = userRepository.findById(addressDTO.getUser())
+            final User user = userRepository.findUserByUid(addressDTO.getUser())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
             address.setUser(user);
         }

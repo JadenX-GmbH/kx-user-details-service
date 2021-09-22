@@ -1,9 +1,7 @@
 package com.jadenx.kxuserdetailsservice.rest;
 
 import com.jadenx.kxuserdetailsservice.config.BaseIT;
-import com.jadenx.kxuserdetailsservice.model.ErrorResponse;
-import com.jadenx.kxuserdetailsservice.model.ProfileDTO;
-import com.jadenx.kxuserdetailsservice.model.UserDTO;
+import com.jadenx.kxuserdetailsservice.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
@@ -41,8 +39,8 @@ public class UserControllerTest extends BaseIT {
     @Sql("/data/userData.sql")
     public void getUser_success() {
         final HttpEntity<String> request = new HttpEntity<>(null, headers());
-        final ResponseEntity<UserDTO> response = restTemplate.exchange(
-            "/api/users/1000", HttpMethod.GET, request, UserDTO.class);
+        final ResponseEntity<ProfileDTO> response = restTemplate.exchange(
+            "/api/users/8b9ee60c-6102-4601-8530-041c01f4a6e9", HttpMethod.GET, request, ProfileDTO.class);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(UUID.fromString("8b9ee60c-6102-4601-8530-041c01f4a6e9"), response.getBody().getUid());
@@ -67,7 +65,7 @@ public class UserControllerTest extends BaseIT {
     public void getUser_notFound() {
         final HttpEntity<String> request = new HttpEntity<>(null, headers());
         final ResponseEntity<ErrorResponse> response = restTemplate.exchange(
-            "/api/users/1666", HttpMethod.GET, request, ErrorResponse.class);
+            "/api/users/8b9ee60c-6102-4601-8530-041c01f4a6ec", HttpMethod.GET, request, ErrorResponse.class);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertEquals("ResponseStatusException", response.getBody().getException());
@@ -129,5 +127,95 @@ public class UserControllerTest extends BaseIT {
         );
 
 
+    }
+
+    @Test
+    @Sql({"/data/userData.sql", "/data/detailsData.sql",
+        "/data/addressData.sql", "/data/categoryData.sql",
+        "/data/skillData.sql", "/data/skillsetData.sql"})
+    public void getProfileFromUid_success() {
+        final HttpEntity<String> request = new HttpEntity<>(null, headers());
+        final ResponseEntity<ProfileDTO> response = restTemplate.exchange(
+            "/api/users/8b9ee60c-6102-4601-8530-041c01f4a6e9/profile",
+            HttpMethod.GET, request, ProfileDTO.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(UUID.fromString("8b9ee60c-6102-4601-8530-041c01f4a6e9"), response.getBody().getUid());
+    }
+
+    @Test
+    @Sql({"/data/userData.sql", "/data/detailsData.sql"})
+    public void getDetailsFromUser() {
+        final HttpEntity<String> request = new HttpEntity<>(null, headers());
+        final ResponseEntity<DetailsDTO> response = restTemplate.exchange(
+            "/api/users/8b9ee60c-6102-4601-8530-041c01f4a6e9/detail",
+            HttpMethod.GET, request, DetailsDTO.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1600, response.getBody().getId());
+    }
+
+    @Test
+    @Sql({"/data/userData.sql", "/data/detailsData.sql"})
+    public void updateDetail() {
+        final HttpEntity<String> request = new HttpEntity<>(
+            readResource("/requests/detailsDTORequest.json"), headers());
+        final ResponseEntity<Void> response = restTemplate.exchange(
+            "/api/users/8b9ee60c-6102-4601-8530-041c01f4a6e9/detail", HttpMethod.PUT, request, Void.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Donec ac nibh...", detailsRepository.findById((long) 1600).get().getName());
+    }
+
+    @Test
+    @Sql({"/data/userData.sql", "/data/detailsData.sql", "/data/addressData.sql"})
+    public void getAddressFromUser() {
+        final HttpEntity<String> request = new HttpEntity<>(null, headers());
+        final ResponseEntity<List<AddressDTO>> response = restTemplate.exchange(
+            "/api/users/8b9ee60c-6102-4601-8530-041c01f4a6e9/addresses", HttpMethod.GET,
+            request, new ParameterizedTypeReference<>() {
+            });
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1500, response.getBody().get(0).getId());
+    }
+
+    @Test
+    @Sql({"/data/userData.sql", "/data/detailsData.sql", "/data/addressData.sql"})
+    public void updateAddress() {
+        final HttpEntity<String> request = new HttpEntity<>(
+            readResource("/requests/addressDTOListUpdateRequest.json"), headers());
+        final ResponseEntity<Void> response = restTemplate.exchange(
+            "/api/users/8b9ee60c-6102-4601-8530-041c01f4a6e9/addresses", HttpMethod.PUT, request, Void.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Donec ac nibh...", addressRepository.findById(1500L).get().getName());
+    }
+
+    @Test
+    @Sql({"/data/userData.sql", "/data/detailsData.sql", "/data/addressData.sql"})
+    public void deleteAddress() {
+        final HttpEntity<String> request = new HttpEntity<>(null, headers());
+        final ResponseEntity<Void> response = restTemplate.exchange(
+            "/api/users/8b9ee60c-6102-4601-8530-041c01f4a6e9/addresses", HttpMethod.DELETE, request, Void.class);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals(0, addressRepository.count());
+        assertEquals(1, userRepository.count());
+        assertEquals(1, detailsRepository.count());
+    }
+
+    @Test
+    @Sql({"/data/userData.sql", "/data/detailsData.sql"})
+    public void createAddress() {
+        final HttpEntity<String> request = new HttpEntity<>(
+            readResource("/requests/addressDTOListRequest.json"), headers());
+        final ResponseEntity<List<Long>> response = restTemplate.exchange(
+            "/api/users/8b9ee60c-6102-4601-8530-041c01f4a6e9/addresses", HttpMethod.POST, request,
+            new ParameterizedTypeReference<>() {
+            });
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertEquals(1, addressRepository.count());
     }
 }

@@ -1,5 +1,7 @@
 package com.jadenx.kxuserdetailsservice.service;
 
+import com.jadenx.kxuserdetailsservice.model.AddressDTO;
+import com.jadenx.kxuserdetailsservice.model.DetailsDTO;
 import com.jadenx.kxuserdetailsservice.model.ProfileDTO;
 import com.jadenx.kxuserdetailsservice.model.UserDTO;
 
@@ -11,14 +13,26 @@ public interface UserService {
 
     List<UserDTO> findAll();
 
-    UserDTO get(final Long id);
+    ProfileDTO get(final UUID id);
 
-    ProfileDTO getProfileById(final UUID id);
+    ProfileDTO getProfileByUid(final UUID id);
 
     Long create(final UserDTO userDTO);
 
     void update(final Long id, final UserDTO userDTO);
 
     void delete(final Long id);
+
+    DetailsDTO getDetailsFromUser(final UUID uid);
+
+    void updateDetail(final UUID uid, final DetailsDTO detailsDTO);
+
+    List<AddressDTO> getAddressFromUser(final UUID uid);
+
+    void updateAddress(final UUID uid, final List<AddressDTO> addressDTO);
+
+    void deleteAddress(final UUID uid);
+
+    List<Long> createAddress(final UUID uid, final List<AddressDTO> addressDTOList);
 
 }

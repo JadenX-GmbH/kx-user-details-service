@@ -2,7 +2,6 @@ package com.jadenx.kxuserdetailsservice.service;
 
 import com.jadenx.kxuserdetailsservice.domain.*;
 import com.jadenx.kxuserdetailsservice.model.*;
-import com.jadenx.kxuserdetailsservice.repos.GigRepository;
 import com.jadenx.kxuserdetailsservice.repos.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
-import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -22,7 +20,8 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final GigRepository gigRepository;
+    private final DetailsService detailsService;
+    private final AddressService addressService;
 
     @Override
     public List<UserDTO> findAll() {
@@ -33,14 +32,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO get(final Long id) {
-        return userRepository.findById(id)
-            .map(user -> mapToDTO(user, new UserDTO()))
+    public ProfileDTO get(final UUID id) {
+        return userRepository.findUserByUid(id)
+            .map(user -> mapToProfile(user, new ProfileDTO()))
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @Override
-    public ProfileDTO getProfileById(final UUID uid) {
+    public ProfileDTO getProfileByUid(final UUID uid) {
         return userRepository.findUserByUid(uid)
             .map(user -> mapToProfile(user, new ProfileDTO()))
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -66,6 +65,58 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    @Override
+    public DetailsDTO getDetailsFromUser(final UUID uid) {
+        return userRepository.findUserByUid(uid)
+            .map(user -> mapDetailsToDTO(user.getDetails(), new DetailsDTO()))
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    public void updateDetail(final UUID uid, final DetailsDTO detailsDTO) {
+        User user = userRepository.findUserByUid(uid)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Details detail = user.getDetails();
+        detailsService.update(detail.getId(), detailsDTO);
+    }
+
+    @Override
+    public List<AddressDTO> getAddressFromUser(final UUID uid) {
+        User user = userRepository.findUserByUid(uid)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return user.getUserAddresss().stream()
+            .map(address -> mapAddressToDTO(address, new AddressDTO()))
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateAddress(final UUID uid, final List<AddressDTO> addressDTOList) {
+        userRepository.findUserByUid(uid)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        addressDTOList
+            .forEach(addressDTO -> addressService.update(addressDTO.getId(), addressDTO));
+
+    }
+
+    @Override
+    public void deleteAddress(final UUID uid) {
+        User user = userRepository.findUserByUid(uid)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        user.getUserAddresss().clear();
+        userRepository.save(user);
+    }
+
+    @Override
+    public List<Long> createAddress(final UUID uid, final List<AddressDTO> addressDTOList) {
+        userRepository.findUserByUid(uid)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return addressDTOList
+            .stream().map(addressDTO -> {
+                addressDTO.setUser(uid);
+                return addressService.create(addressDTO);
+            }).collect(Collectors.toList());
+    }
+
     private UserDTO mapToDTO(final User user, final UserDTO userDTO) {
         userDTO.setId(user.getId());
         userDTO.setUid(user.getUid());
@@ -77,9 +128,6 @@ public class UserServiceImpl implements UserService {
         userDTO.setUserPhoto(user.getUserPhoto());
         userDTO.setBackgroundPhoto(user.getBackgroundPhoto());
         userDTO.setIsActive(user.getIsActive());
-        userDTO.setUserGigs(user.getUserGigGigs() == null ? null : user.getUserGigGigs().stream()
-            .map(Gig::getId)
-            .collect(Collectors.toList()));
         return userDTO;
     }
 
@@ -93,13 +141,6 @@ public class UserServiceImpl implements UserService {
         user.setUserPhoto(userDTO.getUserPhoto());
         user.setBackgroundPhoto(userDTO.getBackgroundPhoto());
         user.setIsActive(userDTO.getIsActive());
-        if (userDTO.getUserGigs() != null) {
-            final List<Gig> userGigs = gigRepository.findAllById(userDTO.getUserGigs());
-            if (userGigs.size() != userDTO.getUserGigs().size()) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "one of userGigs not found");
-            }
-            user.setUserGigGigs(new HashSet<>(userGigs));
-        }
         return user;
     }
 
@@ -121,11 +162,6 @@ public class UserServiceImpl implements UserService {
                 .map(skillset -> mapSkillsetToDTO(skillset, new ExtendedSkillsetDTO()))
                 .collect(Collectors.toSet())
         );
-        profileDTO.setUserGigs(user.getUserGigGigs() == null ? null
-            : user.getUserGigGigs()
-            .stream()
-            .map(gig -> mapGigToDTO(gig, new GigDTO()))
-            .collect(Collectors.toSet()));
         profileDTO.setDetails(user.getDetails() == null ? null : mapDetailsToDTO(user.getDetails(), new DetailsDTO()));
 
         profileDTO.setUserAddresses(user.getUserAddresss() == null ? null
@@ -134,13 +170,6 @@ public class UserServiceImpl implements UserService {
         profileDTO.setDateCreated(user.getDateCreated());
         profileDTO.setLastUpdated(user.getLastUpdated());
         return profileDTO;
-    }
-
-
-    private GigDTO mapGigToDTO(final Gig gig, final GigDTO gigDTO) {
-        gigDTO.setId(gig.getId());
-        gigDTO.setGigId(gig.getGigId());
-        return gigDTO;
     }
 
     private ExtendedSkillsetDTO mapSkillsetToDTO(
@@ -161,7 +190,7 @@ public class UserServiceImpl implements UserService {
         detailsDTO.setNationality(details.getNationality());
         detailsDTO.setEducation(details.getEducation());
         detailsDTO.setDegree(details.getDegree());
-        detailsDTO.setUser(details.getUser() == null ? null : details.getUser().getId());
+        detailsDTO.setUser(details.getUser() == null ? null : details.getUser().getUid());
         return detailsDTO;
     }
 
@@ -174,7 +203,7 @@ public class UserServiceImpl implements UserService {
         addressDTO.setPostalCode(address.getPostalCode());
         addressDTO.setCity(address.getCity());
         addressDTO.setCountry(address.getCountry());
-        addressDTO.setUser(address.getUser() == null ? null : address.getUser().getId());
+        addressDTO.setUser(address.getUser() == null ? null : address.getUser().getUid());
         return addressDTO;
     }
 }

@@ -11,7 +11,7 @@ public interface SkillsetService {
 
     SkillsetDTO get(final Long id);
 
-    Long create(final SkillsetDTO skillsetDTO);
+    List<Long> create(final List<SkillsetDTO> skillsetDTOList);
 
     void update(final Long id, final SkillsetDTO skillsetDTO);
 

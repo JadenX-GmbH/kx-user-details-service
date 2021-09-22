@@ -32,8 +32,8 @@ public class SkillsetController {
     }
 
     @PostMapping
-    public ResponseEntity<Long> createSkillset(@RequestBody @Valid final SkillsetDTO skillsetDTO) {
-        return new ResponseEntity<>(skillsetService.create(skillsetDTO), HttpStatus.CREATED);
+    public ResponseEntity<List<Long>> createSkillset(@RequestBody @Valid final List<SkillsetDTO> skillsetDTOList) {
+        return new ResponseEntity<>(skillsetService.create(skillsetDTOList), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

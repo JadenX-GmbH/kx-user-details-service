@@ -1,5 +1,14 @@
-{
-    "maturity": "JUNIOR",
-    "user": 1000,
-    "skill": 1200
-}
+[
+    {
+        "maturity": "JUNIOR",
+
+        "skill": 1200
+    },
+    {
+
+        "maturity": "JUNIOR",
+
+        "skill": 1200
+    }
+
+]

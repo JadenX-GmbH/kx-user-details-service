@@ -60,16 +60,16 @@ public class SkillsetControllerTest extends BaseIT {
     }
 
     @Test
-    @Sql({"/data/userData.sql", "/data/detailsData.sql",
-        "/data/categoryData.sql", "/data/skillData.sql"})
+    @Sql({"/data/categoryData.sql", "/data/skillData.sql"})
     public void createSkillset_success() {
         final HttpEntity<String> request = new HttpEntity<>(
             readResource("/requests/skillsetDTORequest.json"), headers());
-        final ResponseEntity<Long> response = restTemplate.exchange(
-            "/api/skillsets", HttpMethod.POST, request, Long.class);
+        final ResponseEntity<List<Long>> response = restTemplate.exchange(
+            "/api/skillsets", HttpMethod.POST, request, new ParameterizedTypeReference<List<Long>>() {
+            });
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals(1, skillsetRepository.count());
+        assertEquals(2, skillsetRepository.count());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class SkillsetControllerTest extends BaseIT {
         "/data/skillsetData.sql"})
     public void updateSkillset_success() {
         final HttpEntity<String> request = new HttpEntity<>(
-            readResource("/requests/skillsetDTORequest.json"), headers());
+            readResource("/requests/skillsetDTOUpdateRequest.json"), headers());
         final ResponseEntity<Void> response = restTemplate.exchange(
             "/api/skillsets/1100", HttpMethod.PUT, request, Void.class);
 

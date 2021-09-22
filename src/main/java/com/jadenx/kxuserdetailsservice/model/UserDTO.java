@@ -5,7 +5,6 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
 import java.util.UUID;
 
 
@@ -38,7 +37,5 @@ public class UserDTO {
     private String backgroundPhoto;
 
     private Boolean isActive = Boolean.TRUE;
-
-    private List<Long> userGigs;
 
 }

@@ -35,8 +35,6 @@ public class ProfileDTO {
 
     private Set<ExtendedSkillsetDTO> userSkillsets;
 
-    private Set<GigDTO> userGigs;
-
     private DetailsDTO details;
 
     private Set<AddressDTO> userAddresses;

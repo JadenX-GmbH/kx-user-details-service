@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.UUID;
 
 
 @Getter
@@ -41,6 +42,6 @@ public class AddressDTO {
     private String country;
 
     @NotNull
-    private Long user;
+    private UUID user;
 
 }

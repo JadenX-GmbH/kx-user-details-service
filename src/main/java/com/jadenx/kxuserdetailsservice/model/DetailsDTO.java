@@ -5,6 +5,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.UUID;
 
 
 @Getter
@@ -36,5 +37,5 @@ public class DetailsDTO {
     private String degree;
 
     @NotNull
-    private Long user;
+    private UUID user;
 }

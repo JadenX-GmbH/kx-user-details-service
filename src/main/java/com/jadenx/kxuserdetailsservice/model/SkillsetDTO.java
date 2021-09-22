@@ -14,7 +14,6 @@ public class SkillsetDTO {
 
     private Maturity maturity;
 
-    @NotNull
     private Long user;
 
     @NotNull

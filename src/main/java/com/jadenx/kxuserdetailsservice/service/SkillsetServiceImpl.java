@@ -45,10 +45,13 @@ public class SkillsetServiceImpl implements SkillsetService {
     }
 
     @Override
-    public Long create(final SkillsetDTO skillsetDTO) {
-        final Skillset skillset = new Skillset();
-        mapToEntity(skillsetDTO, skillset);
-        return skillsetRepository.save(skillset).getId();
+    public List<Long> create(final List<SkillsetDTO> skillsetDTOList) {
+        List<Skillset> skillsetList = skillsetDTOList.stream()
+            .map(skillsetDTO -> mapToEntity(skillsetDTO, new Skillset()))
+            .collect(Collectors.toList());
+        return skillsetRepository.saveAll(skillsetList)
+            .stream().map(skillset -> skillset.getId())
+            .collect(Collectors.toList());
     }
 
     @Override

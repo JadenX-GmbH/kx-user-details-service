@@ -69,7 +69,7 @@ public class DetailsServiceImpl implements DetailsService {
         detailsDTO.setNationality(details.getNationality());
         detailsDTO.setEducation(details.getEducation());
         detailsDTO.setDegree(details.getDegree());
-        detailsDTO.setUser(details.getUser() == null ? null : details.getUser().getId());
+        detailsDTO.setUser(details.getUser() == null ? null : details.getUser().getUid());
         return detailsDTO;
     }
 
@@ -84,7 +84,7 @@ public class DetailsServiceImpl implements DetailsService {
         if (detailsDTO.getUser() != null
             && (details.getUser() == null
             || !details.getUser().getId().equals(detailsDTO.getUser()))) {
-            final User user = userRepository.findById(detailsDTO.getUser())
+            final User user = userRepository.findUserByUid(detailsDTO.getUser())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
             details.setUser(user);
         }

@@ -14,10 +14,5 @@ DELETE
 FROM details;
 
 DELETE
-FROM user_gig;
-
-DELETE
 FROM user;
 
-DELETE
-FROM gig;

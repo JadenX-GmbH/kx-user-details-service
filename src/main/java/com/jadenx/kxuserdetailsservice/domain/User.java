@@ -54,15 +54,6 @@ public class User {
         cascade = CascadeType.ALL)
     private Set<Skillset> userSkillsets;
 
-    // CHECKSTYLE IGNORE check FOR NEXT 6 LINES
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-        name = "user_gig",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "gig_id")
-    )
-    private Set<Gig> userGigGigs;
-
     // CHECKSTYLE IGNORE check FOR NEXT 7 LINES
     @OneToOne(
         mappedBy = "user",
@@ -72,7 +63,7 @@ public class User {
     )
     private Details details;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Address> userAddresss;
 
     @Column(nullable = false, updatable = false)

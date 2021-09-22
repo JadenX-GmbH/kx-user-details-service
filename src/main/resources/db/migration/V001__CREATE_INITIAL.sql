@@ -19,7 +19,7 @@ CREATE TABLE skillset
 (
     id           BIGINT AUTO_INCREMENT NOT NULL,
     maturity     VARCHAR(100) NULL,
-    user_id      BIGINT    NOT NULL,
+    user_id      BIGINT     NULL,
     skill_id     BIGINT    NOT NULL,
     date_created timestamp NOT NULL,
     last_updated timestamp NOT NULL,
@@ -34,15 +34,6 @@ CREATE TABLE skill
     date_created timestamp    NOT NULL,
     last_updated timestamp    NOT NULL,
     CONSTRAINT PK_SKILL PRIMARY KEY (id)
-) AUTO_INCREMENT=10000;
-
-CREATE TABLE gig
-(
-    id           BIGINT AUTO_INCREMENT NOT NULL,
-    gig_id       BIGINT    NOT NULL,
-    date_created timestamp NOT NULL,
-    last_updated timestamp NOT NULL,
-    CONSTRAINT PK_GIG PRIMARY KEY (id)
 ) AUTO_INCREMENT=10000;
 
 CREATE TABLE category
@@ -86,12 +77,6 @@ CREATE TABLE details
     CONSTRAINT PK_DETAILS PRIMARY KEY (id)
 ) AUTO_INCREMENT=10000;
 
-CREATE TABLE user_gig
-(
-    user_id BIGINT NOT NULL,
-    gig_id  BIGINT NOT NULL
-);
-
 ALTER TABLE user
     ADD CONSTRAINT unique_user_uid UNIQUE (uid);
 
@@ -110,9 +95,6 @@ ALTER TABLE skill
 ALTER TABLE skill
     ADD CONSTRAINT unique_skill_name UNIQUE (name);
 
-ALTER TABLE gig
-    ADD CONSTRAINT unique_gig_gig_id UNIQUE (gig_id);
-
 ALTER TABLE category
     ADD CONSTRAINT unique_category_name UNIQUE (name);
 
@@ -124,14 +106,5 @@ ALTER TABLE details
 
 ALTER TABLE details
     ADD CONSTRAINT unique_details_email UNIQUE (email);
-
-ALTER TABLE user_gig
-    ADD PRIMARY KEY (user_id, gig_id);
-
-ALTER TABLE user_gig
-    ADD CONSTRAINT fk_user_gig_user_id FOREIGN KEY (user_id) REFERENCES user (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
-
-ALTER TABLE user_gig
-    ADD CONSTRAINT fk_user_gig_gig_id FOREIGN KEY (gig_id) REFERENCES gig (id) ON UPDATE NO ACTION ON DELETE NO ACTION;
 
 

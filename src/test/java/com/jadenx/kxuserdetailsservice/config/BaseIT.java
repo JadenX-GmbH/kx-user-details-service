@@ -66,9 +66,6 @@ public abstract class BaseIT {
     public UserRepository userRepository;
 
     @Autowired
-    public GigRepository gigRepository;
-
-    @Autowired
     public DetailsRepository detailsRepository;
 
     @DynamicPropertySource
