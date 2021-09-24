@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/JadenX-GmbH/kx-user-details-service-public/branch/main/graph/badge.svg?token=VNOFORR48Y)](https://codecov.io/gh/JadenX-GmbH/kx-user-details-service-public)
+
 ## Swagger
 
 Swagger avaliable at this link:
